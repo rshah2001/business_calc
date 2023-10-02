@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.messagebox
 import datetime
+from tkinter import simpledialog
 
 class ProfitCalculator(tk.Tk):
     def __init__(self):
@@ -9,6 +10,7 @@ class ProfitCalculator(tk.Tk):
         self.title("Profit Calculator")
         self.geometry("600x600")
         self.configure(bg="#f0f0f0")  # Set background color
+        self.state('zoomed')  # Maximize the window
 
         # Create a custom style for buttons
         self.style = ttk.Style()
@@ -79,19 +81,22 @@ class ProfitCalculator(tk.Tk):
         ttk.Button(button_frame, text="Clear", width=5, style="Custom.TButton", command=self.clear).grid(row=3, column=2, padx=5, pady=5)
         ttk.Button(button_frame, text="Backspace", width=7, style="Custom.TButton", command=self.backspace).grid(row=3, column=3, padx=5, pady=5)
 
-        # Total Buttons
-        ttk.Button(button_frame, text="Total Profit", width=12, style="Custom.TButton", command=self.show_total_profit).grid(row=4, column=0, padx=5, pady=10)
-        ttk.Button(button_frame, text="Total Money Out", width=12, style="Custom.TButton", command=self.show_total_money_out).grid(row=4, column=1, columnspan=2, padx=5, pady=10)
-        ttk.Button(button_frame, text="End Day", width=12, style="Custom.TButton", command=self.end_day).grid(row=4, column=3, padx=5, pady=10)
-
-        # Starting Balance Entry
-        ttk.Label(main_frame, text="Starting Balance: $", font=("Helvetica", 14), background="#f0f0f0").grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky=tk.W)
-        self.starting_balance_entry = ttk.Entry(main_frame, width=10, font=("Helvetica", 14))
-        self.starting_balance_entry.grid(row=5, column=2, padx=5, pady=10, sticky=tk.W)
-        ttk.Button(main_frame, text="Set Starting Balance", width=18, style="Custom.TButton", command=self.set_starting_balance).grid(row=5, column=3, padx=5, pady=10, sticky=tk.W)
+        # Calculate Change Button
+        ttk.Button(button_frame, text="Calculate Change", style="Custom.TButton", command=self.calculate_change).grid(row=4, column=0, columnspan=4, padx=5, pady=10)
 
         # Calculate Money In Button
-        ttk.Button(main_frame, text="Money In", width=20, style="Custom.TButton", command=self.calculate_money_in_today).grid(row=6, column=0, columnspan=4, padx=5, pady=10)
+        ttk.Button(button_frame, text="Calculate Money In", style="Custom.TButton", command=self.calculate_money_in).grid(row=5, column=0, columnspan=4, padx=5, pady=10)
+
+        # Total Buttons
+        ttk.Button(button_frame, text="Total Profit", width=12, style="Custom.TButton", command=self.show_total_profit).grid(row=6, column=0, padx=5, pady=10)
+        ttk.Button(button_frame, text="Total Money Out", width=12, style="Custom.TButton", command=self.show_total_money_out).grid(row=6, column=1, columnspan=2, padx=5, pady=10)
+        ttk.Button(button_frame, text="End Day", width=12, style="Custom.TButton", command=self.end_day).grid(row=6, column=3, padx=5, pady=10)
+
+        # Starting Balance Entry
+        ttk.Label(main_frame, text="Starting Balance: $", font=("Helvetica", 14), background="#f0f0f0").grid(row=7, column=0, columnspan=2, padx=5, pady=10, sticky=tk.W)
+        self.starting_balance_entry = ttk.Entry(main_frame, width=10, font=("Helvetica", 14))
+        self.starting_balance_entry.grid(row=7, column=2, padx=5, pady=10, sticky=tk.W)
+        ttk.Button(main_frame, text="Set Starting Balance", width=18, style="Custom.TButton", command=self.set_starting_balance).grid(row=7, column=3, padx=5, pady=10, sticky=tk.W)
 
     def on_number_click(self, number):
         if number == "   ":
@@ -192,17 +197,20 @@ class ProfitCalculator(tk.Tk):
 
         tkinter.messagebox.showinfo("End Day", "Day ended. Data saved.")
 
-    def calculate_money_in_today(self):
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        starting_balance_today = self.starting_balance
-        money_in_today = 0.0
+    def calculate_change(self):
+        try:
+            amount_given = float(tk.simpledialog.askstring("Amount Given", "Enter the amount given:"))
+            change = amount_given - self.money_in
+            tkinter.messagebox.showinfo("Change Calculation", f"Change: ${change:.2f}")
+        except (ValueError, TypeError):
+            tkinter.messagebox.showerror("Invalid Input", "Please enter a valid amount.")
 
-        for operation in self.operation_history:
-            if operation.startswith("+"):
-                money_in_today += float(operation[1:])
-
-        tkinter.messagebox.showinfo("Money In Today", f"Money In Today ({current_date}): ${money_in_today - starting_balance_today:.2f}")
-
+    def calculate_money_in(self):
+        try:
+            total_money_in_today = self.money_in - self.starting_balance
+            tkinter.messagebox.showinfo("Total Money In Today", f"Total Money In Today: ${total_money_in_today:.2f}")
+        except Exception as e:
+            tkinter.messagebox.showerror("Error", str(e))
 
 if __name__ == "__main__":
     app = ProfitCalculator()
