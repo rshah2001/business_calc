@@ -7,7 +7,7 @@ from tkinter import simpledialog
 class ProfitCalculator(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Profit Calculator")
+        self.title("Business Calculator")
         self.geometry("600x600")
         self.configure(bg="#f0f0f0")  # Set background color
         self.state('zoomed')  # Maximize the window
